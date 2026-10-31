@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ANIME PARTY ONLINE</title>
+<style>
+.lobbyShell{width:min(1050px,100%);border:1px solid #3a527c;border-radius:25px;padding:22px;background:linear-gradient(135deg,#101a30f5,#172746f5);box-shadow:0 30px 100px #000b;max-height:94vh;overflow:auto}
+.lobbyHeader,.playerPanelTop,.lobbyFooter{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.roomBadge,.countPill{border:1px solid #47618d;background:#1c2d4c;padding:9px 13px;border-radius:12px;font-size:12px;color:#b9c9e7;letter-spacing:1px}
+.roomBadge b{color:var(--gold);font-size:15px;margin-left:7px}
+.lobbyGrid{display:grid;grid-template-columns:.9fr 1.1fr;gap:18px;margin-top:22px}
+.lobbyHero{padding:24px;border-radius:20px;background:radial-gradient(circle at 90% 10%,#326b80 0,transparent 35%),linear-gradient(145deg,#203c5b,#17213b);border:1px solid #426083;display:flex;flex-direction:column;justify-content:center;min-height:430px}
+.eyebrow{font-size:11px;letter-spacing:2px;color:var(--cyan);font-weight:900}
+.lobbyHero h1{margin:12px 0 6px}.lobbyHero label{font-size:13px;color:#c4d2eb;margin-top:18px}
+.lobbyActions{display:flex;gap:9px}.lobbyActions button{flex:1}
+.lobbyInfo{display:flex;gap:12px;flex-wrap:wrap;color:#b8c9e6;font-size:11px;margin-top:24px}
+.playerPanel{border:1px solid #344a70;background:#101a30;border-radius:20px;padding:18px}
+.playerPanel h2{font-size:19px;margin:0 0 4px}.countPill{color:var(--cyan);font-weight:900}
+.slotGrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:16px}
+.playerSlot{display:flex;align-items:center;gap:9px;min-width:0;padding:8px;border:1px solid #293e62;border-radius:12px;background:#17243d}
+.playerSlot span:nth-child(2){min-width:0;flex:1}.playerSlot b{font-size:12px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.playerSlot small{display:block;color:#91a5c9;font-size:10px;margin-top:2px}
+.playerSlot i{font-style:normal;font-size:9px;color:#7ee2b4;white-space:nowrap}.youSlot{border-color:#39899a;background:#173448}
+.youSlot i{color:var(--gold)}
+.slotAvatar{width:31px;height:31px;flex:0 0 31px;border-radius:10px;display:grid;place-items:center;font-weight:900;color:#111a2c}
+.cyan{background:#58dce5}.pink{background:#ff7ea9}.blue{background:#69b8ff}.gold{background:#ffd166}.violet{background:#a78bfa}.green{background:#78dba0}.orange{background:#ffad69}.mint{background:#8de0d0}.silver{background:#c6d2e2}
+.lobbyBottom{display:flex;gap:9px;margin-top:16px}.lobbyBottom button{flex:1}
+.lobbyFooter{margin-top:18px;color:#8398bd;font-size:10px;letter-spacing:1px}
+@media(max-width:760px){.lobbyGrid{grid-template-columns:1fr}.lobbyHero{min-height:unset;padding:18px}.playerPanel{padding:13px}.lobbyShell{padding:13px}.lobbyFooter{font-size:9px}}
+@media(max-width:400px){.slotGrid{grid-template-columns:1fr}.roomBadge{font-size:10px}.lobbyHero h1{font-size:28px}}
+
+:root{--bg:#0b1020;--panel:#141d35;--line:#2b3a60;--cyan:#56e0e6;--pink:#ff6ba6;--gold:#ffd166;--text:#eef4ff}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,"Segoe UI",sans-serif;overflow:hidden}
+#game{position:fixed;inset:0}canvas{display:block}
+.hud{position:fixed;inset:0;pointer-events:none}
+.top{position:absolute;top:14px;left:14px;right:14px;display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+.panel{background:#101a31df;border:1px solid var(--line);border-radius:16px;padding:12px 15px;backdrop-filter:blur(10px);box-shadow:0 10px 30px #0005}
+.brand{font-weight:900;letter-spacing:1.4px;color:var(--cyan);font-size:17px}.sub{font-size:12px;color:#a9badb;margin-top:3px}
+.status{font-size:13px;line-height:1.6}.status b{color:var(--gold)}
+.actions{position:absolute;bottom:18px;left:50%;transform:translateX(-50%);display:flex;gap:8px;pointer-events:auto;flex-wrap:wrap;justify-content:center;width:min(96%,700px)}
+button{border:1px solid #3d5684;background:#1c2b4b;color:white;border-radius:12px;padding:11px 15px;font-weight:700;cursor:pointer;transition:.15s}
+button:hover{transform:translateY(-2px);border-color:var(--cyan);background:#263b64}
+button.primary{background:linear-gradient(135deg,#1f9eae,#5869d8);border:0}
+button.danger{background:#6d294b;border-color:#a94a75}
+button:disabled{opacity:.45;cursor:not-allowed;transform:none}
+#notice{position:absolute;top:100px;left:50%;transform:translateX(-50%);background:#111d36ed;border:1px solid var(--cyan);padding:10px 16px;border-radius:12px;max-width:90%;text-align:center;font-size:14px;display:none}
+#modal{position:fixed;inset:0;background:#050916c9;display:flex;align-items:center;justify-content:center;padding:18px;z-index:5}
+.card{width:min(560px,100%);background:linear-gradient(145deg,#172542,#10182b);border:1px solid #3a4c73;border-radius:24px;padding:26px;box-shadow:0 24px 80px #0009}
+h1{margin:0;color:var(--cyan);font-size:clamp(25px,5vw,38px);letter-spacing:1px}
+h2{margin:0 0 8px;font-size:23px}.lead{color:#b8c7e4;line-height:1.55}
+input{width:100%;padding:13px;border-radius:11px;border:1px solid #40557f;background:#0b1428;color:white;font-size:16px;margin:8px 0 14px}
+.row{display:flex;gap:10px;flex-wrap:wrap}.row button{flex:1}
+.small{font-size:12px;color:#9eafcf;line-height:1.5;margin-top:12px}
+#taskBox,#meetingBox{position:fixed;z-index:3;left:50%;top:50%;transform:translate(-50%,-50%);width:min(440px,92%);display:none;pointer-events:auto}
+.tasklist{display:grid;gap:8px;margin:14px 0}.task{padding:10px;border:1px solid #31466e;border-radius:10px;background:#0e1930}
+#meetingBox .votegrid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:12px}
+#meetingBox button{width:100%}
+#feed{position:absolute;right:14px;top:104px;width:220px;font-size:12px;color:#c7d5ee;line-height:1.45}
+#feed div{background:#101a31c9;padding:7px 9px;border-radius:8px;margin-bottom:5px}
+@media(max-width:600px){#feed{display:none}.top{top:8px;left:8px;right:8px}.panel{padding:9px 11px}.status{font-size:11px}.actions{bottom:8px}.actions button{padding:10px;font-size:12px}}
+</style>
+</head>
+<body>
+<div id="game"></div>
+<div class="hud">
+ <div class="top">
+  <div class="panel"><div class="brand">ANIME PARTY ONLINE</div><div class="sub">SOCIAL DEDUCTION • 3D PARTY GAME</div></div>
+  <div class="panel status"><div>ห้อง <b id="roomCode">AP-2048</b> · <span id="playerCount">10/10</span> คน</div><div>บทบาท: <b id="role">ยังไม่เริ่ม</b></div><div>ภารกิจรวม: <b id="progress">0%</b></div></div>
+ </div>
+ <div id="notice"></div>
+ <div id="feed"></div>
+ <div class="actions">
+  <button id="startBtn" class="primary" style="display:none">เริ่มรอบ</button>
+  <button id="taskBtn">ทำภารกิจ (E)</button>
+  <button id="reportBtn">เรียกประชุม</button>
+  <button id="mapBtn">แสดงแผนที่</button>
+ </div>
+</div>
+<div id="taskBox" class="panel">
+ <h2>ภารกิจประจำสถานี</h2><div class="lead">ทำภารกิจให้ครบเพื่อช่วยทีมสะสมความคืบหน้า</div>
+ <div class="tasklist">
+  <div class="task">🔋 เติมพลังงานสำรอง <button onclick="completeTask(this)">ทำภารกิจ</button></div>
+  <div class="task">🛰️ ปรับสัญญาณดาวเทียม <button onclick="completeTask(this)">ทำภารกิจ</button></div>
+  <div class="task">🧪 ตรวจสอบตัวอย่าง <button onclick="completeTask(this)">ทำภารกิจ</button></div>
+ </div><button onclick="closeTask()">ปิด</button>
+</div>
+<div id="meetingBox" class="panel">
+ <h2>📢 ประชุมฉุกเฉิน</h2><div class="lead" id="meetingText">ทุกคนมารวมตัวกัน ใครน่าสงสัย?</div>
+ <div class="votegrid" id="voteGrid"></div>
+ <div style="margin-top:10px"><button onclick="closeMeeting()">ปิดการประชุม</button></div>
+</div>
+<div id="modal">
+ <div class="lobbyShell">
+  <div class="lobbyHeader">
+   <div><div class="brand">ANIME PARTY ONLINE</div><div class="sub">SOCIAL DEDUCTION • 3D PARTY ROOM</div></div>
+   <div class="roomBadge">ROOM <b>AP-2048</b></div>
+  </div>
+  <div class="lobbyGrid">
+   <section class="lobbyHero">
+    <div class="eyebrow">✦ WELCOME TO THE STATION ✦</div>
+    <h1>ห้องพร้อมเล่น</h1>
+    <p class="lead">รวมทีมกับเพื่อน เตรียมตัวออกสำรวจสถานี และตามหาผู้แอบแฝง</p>
+    <label for="nickname">ชื่อผู้เล่นของคุณ</label>
+    <input id="nickname" maxlength="16" placeholder="ใส่ชื่อของคุณ..." value="Player">
+    <div class="lobbyActions">
+     <button class="primary" id="joinBtn">เข้าร่วมล็อบบี้</button>
+     <button id="howBtn">วิธีเล่น</button>
+    </div>
+    <div class="lobbyInfo"><span>🌐 Browser</span><span>👥 สูงสุด 10 คน</span><span>🎮 Free to play</span></div>
+   </section>
+   <section class="playerPanel">
+    <div class="playerPanelTop"><div><h2>ผู้เล่นในห้อง</h2><div class="sub">เตรียมทีมให้พร้อมก่อนเริ่มเกม</div></div><div class="countPill">10 / 10</div></div>
+    <div class="slotGrid" id="slotGrid">
+     <div class="playerSlot youSlot"><span class="slotAvatar cyan">P</span><span><b id="slotYouName">Player</b><small>คุณ · เจ้าของห้อง</small></span><i id="youReady">ยังไม่พร้อม</i></div>
+     <div class="playerSlot"><span class="slotAvatar pink">M</span><span><b>Mika</b><small>ผู้เล่น</small></span><i>พร้อม</i></div>
+     <div class="playerSlot"><span class="slotAvatar blue">R</span><span><b>Ren</b><small>ผู้เล่น</small></span><i>พร้อม</i></div>
+     <div class="playerSlot"><span class="slotAvatar gold">A</span><span><b>Aoi</b><small>ผู้เล่น</small></span><i>พร้อม</i></div>
+     <div class="playerSlot"><span class="slotAvatar violet">H</span><span><b>Haru</b><small>ผู้เล่น</small></span><i>พร้อม</i></div>
+     <div class="playerSlot"><span class="slotAvatar green">Y</span><span><b>Yuna</b><small>ผู้เล่น</small></span><i>พร้อม</i></div>
+     <div class="playerSlot"><span class="slotAvatar orange">K</span><span><b>Kaito</b><small>ผู้เล่น</small></span><i>พร้อม</i></div>
+     <div class="playerSlot"><span class="slotAvatar pink">S</span><span><b>Sora</b><small>ผู้เล่น</small></span><i>พร้อม</i></div>
+     <div class="playerSlot"><span class="slotAvatar mint">R</span><span><b>Rin</b><small>ผู้เล่น</small></span><i>พร้อม</i></div>
+     <div class="playerSlot"><span class="slotAvatar silver">A</span><span><b>Akira</b><small>ผู้เล่น</small></span><i>พร้อม</i></div>
+    </div>
+    <div class="lobbyBottom"><button id="readyBtn">✓ พร้อมแล้ว</button><button class="primary" id="launchBtn">เริ่มเกม →</button></div>
+   </section>
+  </div>
+  <div class="lobbyFooter"><span>✦ ANIME PARTY ONLINE</span><span>Prototype v0.2 · Local demo with bots</span></div>
+ </div>
+</div>
+<script type="importmap">
+{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"}}
+</script>
+<script type="module">
+import * as THREE from 'three';
+const mount=document.getElementById('game');
+const scene=new THREE.Scene();scene.background=new THREE.Color(0x91a8c5);scene.fog=new THREE.Fog(0x91a8c5,24,75);
+const camera=new THREE.PerspectiveCamera(62,innerWidth/innerHeight,.1,150);
+camera.position.set(0,8,12);
+const renderer=new THREE.WebGLRenderer({antialias:true});renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.setSize(innerWidth,innerHeight);renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.outputColorSpace=THREE.SRGBColorSpace;mount.appendChild(renderer.domElement);
+scene.add(new THREE.HemisphereLight(0xdceaff,0x39435a,2));
+const sun=new THREE.DirectionalLight(0xfff2dc,2.3);sun.position.set(-8,16,10);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);scene.add(sun);
+const floor=new THREE.Mesh(new THREE.PlaneGeometry(70,70),new THREE.MeshStandardMaterial({color:0x657b88,roughness:.95}));floor.rotation.x=-Math.PI/2;floor.receiveShadow=true;scene.add(floor);
+const grid=new THREE.GridHelper(70,35,0x8ba2a9,0x718994);grid.position.y=.015;scene.add(grid);
+function box(x,y,z,sx,sy,sz,color,rough=.8){let m=new THREE.Mesh(new THREE.BoxGeometry(sx,sy,sz),new THREE.MeshStandardMaterial({color,roughness:rough}));m.position.set(x,y,z);m.castShadow=true;m.receiveShadow=true;scene.add(m);return m}
+function cylinder(x,y,z,r,h,color){let m=new THREE.Mesh(new THREE.CylinderGeometry(r,r,h,24),new THREE.MeshStandardMaterial({color,roughness:.6}));m.position.set(x,y,z);m.castShadow=true;scene.add(m);return m}
+const wallMat=new THREE.MeshStandardMaterial({color:0x526c83,roughness:.85});
+box(0,2,-18,38,4,1,0x52677a);box(0,2,18,38,4,1,0x52677a);box(-19,2,0,1,4,36,0x52677a);box(19,2,0,1,4,36,0x52677a);
+for(let i=0;i<7;i++){box(-14+i*4,2,-17.42,2.8,2.3,.12,0x9bb9c6,.35);box(-14+i*4,2,17.42,2.8,2.3,.12,0x9bb9c6,.35)}
+// station rooms and props
+box(-9,.5,-5,8,1,5,0x314d62);box(9,.5,-5,8,1,5,0x314d62);box(0,.45,8,11,.9,5,0x344e63);
+for(let x of [-13,-9,-5,5,9,13]){cylinder(x,.65,-12,.65,1.3,0x354c61);cylinder(x,.18,-12,.75,.25,0x9bb7bf)}
+for(let x of [-14,14])for(let z of [-10,0,10]){box(x,1,z,1.2,2,1.2,0x394b5e)}
+// glowing task stations
+const stationPositions=[[-9,0,-5],[9,0,-5],[0,0,8]];
+for(let [x,y,z] of stationPositions){let p=new THREE.PointLight(0x53e7ec,2,7);p.position.set(x,2,z);scene.add(p);cylinder(x,.35,z,.8,.7,0x1e3449);cylinder(x,.75,z,.55,.12,0x62dbe0)}
+// avatars
+const colors=[0xff647c,0x56b9ff,0xffc857,0x9b83ff,0x68d391,0xff9f5a,0xe78ad6,0x9bd3c7,0xc3d36b,0xd4d9e8];
+function avatar(name,color,x,z,isYou=false){let g=new THREE.Group();let mat=new THREE.MeshStandardMaterial({color,roughness:.55});let body=new THREE.Mesh(new THREE.CapsuleGeometry(.48,.85,5,10),mat);body.position.y=1.05;body.castShadow=true;g.add(body);let head=new THREE.Mesh(new THREE.SphereGeometry(.34,18,14),new THREE.MeshStandardMaterial({color:0xf0c6a4,roughness:.8}));head.position.y=1.95;head.castShadow=true;g.add(head);let hair=new THREE.Mesh(new THREE.SphereGeometry(.37,16,10,0,Math.PI*2,0,Math.PI*.55),new THREE.MeshStandardMaterial({color:isYou?0x29344d:0x303342,roughness:.9}));hair.position.y=2.05;g.add(hair);let eyeMat=new THREE.MeshStandardMaterial({color:0x182033});for(let ex of [-.12,.12]){let eye=new THREE.Mesh(new THREE.SphereGeometry(.035,8,8),eyeMat);eye.position.set(ex,1.98,.31);g.add(eye)}g.position.set(x,0,z);scene.add(g);g.userData={name,color,isYou};return g}
+const you=avatar('Player',0x57c7e8,0,2,true);let bots=[];
+const botNames=['Mika','Ren','Aoi','Haru','Yuna','Kaito','Sora','Rin','Akira'];
+for(let i=0;i<9;i++){let a=i*Math.PI*2/9;bots.push(avatar(botNames[i],colors[(i+1)%colors.length],Math.cos(a)*9,Math.sin(a)*8-2))}
+const keys={};addEventListener('keydown',e=>{keys[e.key.toLowerCase()]=true;if(e.key.toLowerCase()==='e')openTask()});addEventListener('keyup',e=>keys[e.key.toLowerCase()]=false);
+let started=false,role='ยังไม่เริ่ม',progress=0,done=0,meeting=false,impostorIndex=4,playerName='Player',yaw=0;
+const notice=document.getElementById('notice');function say(t){notice.textContent=t;notice.style.display='block';clearTimeout(say.timer);say.timer=setTimeout(()=>notice.style.display='none',2800)}
+function feed(t){let d=document.createElement('div');d.textContent=t;document.getElementById('feed').prepend(d);while(document.getElementById('feed').children.length>5)document.getElementById('feed').lastChild.remove()}
+function updateHUD(){document.getElementById('role').textContent=role;document.getElementById('progress').textContent=progress+'%';document.getElementById('playerCount').textContent='10/10'}
+function start(){if(started)return;started=true;role=Math.random()<.25?'ผู้แอบแฝง':'ลูกเรือ';impostorIndex=Math.floor(Math.random()*9);updateHUD();document.getElementById('startBtn').disabled=true;feed('เริ่มเกมแล้ว! ทุกคนประจำตำแหน่ง');say(role==='ผู้แอบแฝง'?'คุณคือผู้แอบแฝง! อย่าให้ใครจับได้':'คุณคือลูกเรือ! ทำภารกิจให้สำเร็จ');}
+document.getElementById('startBtn').onclick=start;
+document.getElementById('joinBtn').onclick=()=>{playerName=document.getElementById('nickname').value.trim()||'Player';you.userData.name=playerName;document.getElementById('slotYouName').textContent=playerName;document.getElementById('youReady').textContent='เข้าร่วมแล้ว';say('ยินดีต้อนรับ '+playerName+'! กดพร้อมแล้วเพื่อเตรียมตัว');feed(playerName+' เข้าร่วมห้อง');};
+let isReady=false;
+document.getElementById('readyBtn').onclick=()=>{isReady=!isReady;document.getElementById('readyBtn').textContent=isReady?'✓ ยกเลิกความพร้อม':'✓ พร้อมแล้ว';document.getElementById('youReady').textContent=isReady?'พร้อม':'ยังไม่พร้อม';say(isReady?'คุณพร้อมแล้ว!':'ยกเลิกสถานะพร้อม');};
+document.getElementById('launchBtn').onclick=()=>{if(!isReady){say('กด “พร้อมแล้ว” ก่อนเริ่มเกม');return}document.getElementById('modal').style.display='none';start();say('เริ่มเกมแล้ว! ขอให้สนุก');feed('เกมเริ่มต้นแล้ว');};
+document.getElementById('howBtn').onclick=()=>alert('วิธีเล่น\\nWASD: เดิน\\nเมาส์: หมุนมุมมอง\\nE: เปิดภารกิจ\\nทำภารกิจเพื่อเพิ่มความคืบหน้า\\nเรียกประชุมเพื่อโหวตผู้ต้องสงสัย\\nเป้าหมาย: ลูกเรือทำภารกิจให้ครบ ส่วนผู้แอบแฝงพยายามขัดขวาง');
+function openTask(){if(!started){say('กดเริ่มรอบก่อนนะ');return}document.getElementById('taskBox').style.display='block'}
+window.closeTask=()=>document.getElementById('taskBox').style.display='none';
+window.completeTask=(btn)=>{if(btn.disabled)return;btn.disabled=true;btn.textContent='สำเร็จ ✓';done++;progress=Math.min(100,Math.round(done/6*100));updateHUD();feed('ทำภารกิจสำเร็จ ('+progress+'%)');if(progress===100)say('ภารกิจทีมสำเร็จ! ลูกเรือชนะ');};
+document.getElementById('taskBtn').onclick=openTask;
+document.getElementById('reportBtn').onclick=()=>{if(!started){say('เริ่มรอบก่อนเรียกประชุม');return}openMeeting('มีผู้เล่นเรียกประชุมฉุกเฉิน!')};
+function openMeeting(msg){meeting=true;document.getElementById('meetingText').textContent=msg;let grid=document.getElementById('voteGrid');grid.innerHTML='';[playerName,...botNames].forEach((n,i)=>{let b=document.createElement('button');b.textContent='โหวต '+n;b.onclick=()=>{closeMeeting();let ejected=i===impostorIndex+1?'ผู้แอบแฝงถูกโหวตออก!':'ยังไม่พบผู้แอบแฝง';say(ejected);feed('ผลโหวต: '+ejected);};grid.appendChild(b)});document.getElementById('meetingBox').style.display='block'}
+window.closeMeeting=()=>{meeting=false;document.getElementById('meetingBox').style.display='none'};
+document.getElementById('mapBtn').onclick=()=>{camera.position.set(0,31,.01);camera.lookAt(0,0,0);say('มุมมองแผนที่ — กดอีกครั้งเพื่อกลับ');document.getElementById('mapBtn').onclick=()=>{say('กลับสู่มุมมองผู้เล่น');document.getElementById('mapBtn').onclick=()=>{camera.position.set(0,31,.01);camera.lookAt(0,0,0);say('มุมมองแผนที่ — กดอีกครั้งเพื่อกลับ')}}};
+let last=performance.now();
+function animate(now){requestAnimationFrame(animate);let dt=Math.min((now-last)/1000,.04);last=now;
+ if(!meeting&&document.getElementById('modal').style.display==='none'){let speed=keys.shift?8:5;let dx=(keys.d?1:0)-(keys.a?1:0),dz=(keys.s?1:0)-(keys.w?1:0);let len=Math.hypot(dx,dz)||1;you.position.x+=dx/len*speed*dt;you.position.z+=dz/len*speed*dt;you.position.x=THREE.MathUtils.clamp(you.position.x,-16,16);you.position.z=THREE.MathUtils.clamp(you.position.z,-15,15);if(dx||dz)you.rotation.y=Math.atan2(dx,dz);camera.position.lerp(new THREE.Vector3(you.position.x,6.5,you.position.z+9),.06);camera.lookAt(you.position.x,1.1,you.position.z)}
+ bots.forEach((b,i)=>{let t=now*.00025+i*2.1;b.position.x=Math.sin(t)*9+(i%3-1)*2;b.position.z=Math.cos(t*.8)*7+(i%2)*2;b.rotation.y=t});
+ renderer.render(scene,camera)}
+requestAnimationFrame(animate);
+addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)});
+updateHUD();
+</script>
+</body></html>
